@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# 스테이징된 Java 파일들의 목록을 가져옴
+java_files=$(git diff --cached --name-only --diff-filter=ACMR | grep "\.java$")
+
+if [ -n "$java_files" ]; then
+    
+    echo "$java_files" | while read -r file; do
+        if [ -f "$file" ]; then
+            java -jar .github/workflows/java_format/google-java-format-1.25.2-all-deps.jar -a -r "$file"
+            git add "$file"
+        fi
+    done
+fi
+
+exit 0

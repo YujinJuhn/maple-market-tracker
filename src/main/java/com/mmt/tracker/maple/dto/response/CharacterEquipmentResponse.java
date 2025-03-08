@@ -1,8 +1,10 @@
 package com.mmt.tracker.maple.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import java.util.List;
 
 @Getter
@@ -13,7 +15,7 @@ public class CharacterEquipmentResponse {
     private String character_class;
     private Integer preset_no;
     private List<Equipment> item_equipment;
-    
+
     @Getter
     @Setter
     public static class Equipment {
@@ -56,14 +58,16 @@ public class CharacterEquipmentResponse {
         private Integer special_ring_level;
         private String date_expire;
     }
-    
+
     @Getter
     @Setter
     public static class ItemOption {
         private String str;
         private String dex;
+
         @JsonProperty("int")
         private String int_;
+
         private String luk;
         private String max_hp;
         private String max_mp;
@@ -82,4 +86,4 @@ public class CharacterEquipmentResponse {
         private Integer base_equipment_level;
         private Integer exceptional_upgrade;
     }
-} 
+}

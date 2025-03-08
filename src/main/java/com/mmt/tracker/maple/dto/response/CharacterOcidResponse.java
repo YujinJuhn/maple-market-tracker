@@ -7,4 +7,4 @@ import lombok.Setter;
 @Setter
 public class CharacterOcidResponse {
     private String ocid;
-} 
+}
