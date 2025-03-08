@@ -20,6 +20,6 @@ public interface PriceRepository extends JpaRepository<PriceEntity, Long> {
     List<PriceEntity> findPrices(
             @Param("itemName") String itemName,
             @Param("statType") String statType,
-            @Param("starforce") int starforce,
-            @Param("statPercent") int statPercent);
+            @Param("starforce") short starforce,
+            @Param("statPercent") short statPercent);
 }
