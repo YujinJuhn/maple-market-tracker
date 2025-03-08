@@ -11,7 +11,7 @@ import java.util.List;
 public interface PriceRepository extends JpaRepository<PriceEntity, Long> {
 
     @Query(
-            "SELECT p FROM Price p "
+            "SELECT p FROM PriceEntity p "
                     + "WHERE p.itemName = :itemName "
                     + "AND p.statType = :statType "
                     + "AND p.starforce = :starforce "
