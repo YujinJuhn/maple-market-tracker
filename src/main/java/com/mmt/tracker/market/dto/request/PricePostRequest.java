@@ -1,17 +1,14 @@
 package com.mmt.tracker.market.dto.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.time.LocalDateTime;
 
-import java.sql.Date;
+public record PricePostRequest(
+        String itemName,
+        String statType,
+        short starForce,
+        short statPercent,
+        long price,
+        LocalDateTime date
+) {
 
-@Getter
-@Setter
-public class PricePostRequest {
-    private String itemName;
-    private String statType;
-    private short starforce;
-    private short statPercent;
-    private long price;
-    private Date date;
 }
