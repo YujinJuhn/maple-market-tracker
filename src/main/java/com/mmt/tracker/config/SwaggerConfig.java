@@ -1,4 +1,4 @@
-package com.mmt.tracker.maple.config;
+package com.mmt.tracker.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

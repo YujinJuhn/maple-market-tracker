@@ -1,7 +1,9 @@
 package com.mmt.tracker.maple.client;
 
+import com.mmt.tracker.config.MapleApiClientConfiguration;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,14 +18,20 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class MapleApiClient {
 
+    private static final String API_BASE_URL = "https://open.api.nexon.com/maplestory/v1";
+    private static final String CHARACTER_ITEM_EQUIPMENT_OCID = "/character/item-equipment?ocid=";
+
+    @Value("${maple.api.key}")
+    private String apiKey;
+
     private final RestTemplate restTemplate;
-    private final MapleApiConfig apiConfig;
+    private final MapleApiClientConfiguration apiConfig;
 
     public String getCharacterOcid(String characterName) {
-        String url = apiConfig.getBaseUrl() + "/id?character_name=" + characterName;
+        String url = API_BASE_URL + "/id?character_name=" + characterName;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("x-nxopen-api-key", apiConfig.getApiKey());
+        headers.set("x-nxopen-api-key", apiKey);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
@@ -36,7 +44,7 @@ public class MapleApiClient {
     public String getCharacterEquipment(String ocid, LocalDate date) {
         StringBuilder urlBuilder =
                 new StringBuilder(
-                        apiConfig.getBaseUrl() + "/character/item-equipment?ocid=" + ocid);
+                        API_BASE_URL + CHARACTER_ITEM_EQUIPMENT_OCID + ocid);
 
         if (date != null) {
             String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -44,7 +52,7 @@ public class MapleApiClient {
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("x-nxopen-api-key", apiConfig.getApiKey());
+        headers.set("x-nxopen-api-key", apiKey);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
