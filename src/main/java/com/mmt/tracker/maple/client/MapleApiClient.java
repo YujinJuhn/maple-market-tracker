@@ -1,5 +1,6 @@
 package com.mmt.tracker.maple.client;
 
+import com.mmt.tracker.advice.BadRequestException;
 import com.mmt.tracker.config.MapleApiClientConfiguration;
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +39,11 @@ public class MapleApiClient {
         ResponseEntity<String> response =
                 restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
-        return response.getBody();
+        if(response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody();
+        }
+
+        throw new BadRequestException("존재하지 않는 사용자");
     }
 
     public String getCharacterEquipment(String ocid, LocalDate date) {
