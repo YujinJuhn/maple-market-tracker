@@ -1,25 +1,15 @@
 package com.mmt.tracker.market.repository;
 
-import com.mmt.tracker.market.entity.PriceEntity;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
+import com.mmt.tracker.market.domain.Price;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PriceRepository extends JpaRepository<PriceEntity, Long> {
+public interface PriceRepository extends JpaRepository<Price, Long> {
 
-    @Query(
-            "SELECT p FROM PriceEntity p "
-                    + "WHERE p.itemName = :itemName "
-                    + "AND p.statType = :statType "
-                    + "AND p.starforce = :starforce "
-                    + "AND p.statPercent = :statPercent "
-                    + "ORDER BY p.date DESC")
-    List<PriceEntity> findPrices(
-            @Param("itemName") String itemName,
-            @Param("statType") String statType,
-            @Param("starforce") short starforce,
-            @Param("statPercent") short statPercent);
+    List<Price> findPricesByItemNameAndStatTypeAndStarForceAndStatPercent(
+            String itemName,
+            String statType,
+            Short starForce,
+            Short statPercent
+    );
 }
