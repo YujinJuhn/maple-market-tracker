@@ -26,9 +26,9 @@ public class PriceController {
     public DatePriceResponses getPrices(
             @RequestParam String itemName,
             @RequestParam String statType,
-            @RequestParam short starforce,
-            @RequestParam short statPercent) {
-        return priceService.getPrices(itemName, statType, starforce, statPercent);
+            @RequestParam Short starForce,
+            @RequestParam Short statPercent) {
+        return priceService.getPrices(itemName, statType, starForce, statPercent);
     }
 
     @Operation(

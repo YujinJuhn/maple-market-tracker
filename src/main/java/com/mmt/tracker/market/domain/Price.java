@@ -6,26 +6,15 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
+import java.time.LocalDate;
+
 @Entity
-//@Table(
-//        name = "prices",
-//        uniqueConstraints =
-//                @UniqueConstraint(
-//                        columnNames = {
-//                            "item_name",
-//                            "stat_type",
-//                            "starForce",
-//                            "stat_percent",
-//                            "date"
-//                        }),
-//        indexes = @Index(name = "idx_item_percent", columnList = "item_name, stat_percent"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
@@ -50,17 +39,20 @@ public class Price {
     @NonNull
     private Short statPercent;
 
-    @NonNull
-    private Long amount;
+    @NonNull private Long amount;
 
-    @Column(name = "date")
-    @NonNull
-    private LocalDateTime date;
+    @NonNull private LocalDate date;
 
-    public Price(String itemName, String statType, short starforce, short statPercent, long amount, LocalDateTime date) {
+    public Price(
+            String itemName,
+            String statType,
+            Short starForce,
+            Short statPercent,
+            Long amount,
+            LocalDate date) {
         this.itemName = itemName;
         this.statType = statType;
-        this.starForce = starforce;
+        this.starForce = starForce;
         this.statPercent = statPercent;
         this.amount = amount;
         this.date = date;

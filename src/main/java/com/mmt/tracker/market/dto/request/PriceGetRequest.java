@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PriceGetRequest {
-    private short statPercent;
+    private Short statPercent;
     private String itemName;
     private String statType;
-    private short starforce;
+    private Short starForce;
 }
