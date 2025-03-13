@@ -2,8 +2,9 @@ package com.mmt.tracker.maple.client;
 
 import com.mmt.tracker.advice.BadRequestException;
 import com.mmt.tracker.config.MapleApiClientConfiguration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -12,15 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
 @Component
 @RequiredArgsConstructor
 public class MapleApiClient {
 
-    private static final String API_BASE_URL = "https://open.api.nexon.com/maplestory/v1";
-    private static final String CHARACTER_ITEM_EQUIPMENT_OCID = "/character/item-equipment?ocid=";
+    private static final String NXOPEN_API_KEY_HEADER = "x-nxopen-api-key";
 
     @Value("${maple.api.key}")
     private String apiKey;
@@ -29,17 +26,14 @@ public class MapleApiClient {
     private final MapleApiClientConfiguration apiConfig;
 
     public String getCharacterOcid(String characterName) {
-        String url = API_BASE_URL + "/id?character_name=" + characterName;
+        String url = MapleApiUrl.BASE_URL.getUrl() + MapleApiUrl.GET_CHARACTER_OCID_BY_NAME.getUrl().formatted(
+                characterName);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-nxopen-api-key", apiKey);
+        HttpEntity<String> entity = buildHttpEntity();
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-        if(response.getStatusCode().is2xxSuccessful()) {
+        if (response.getStatusCode().is2xxSuccessful()) {
             return response.getBody();
         }
 
@@ -47,23 +41,25 @@ public class MapleApiClient {
     }
 
     public String getCharacterEquipment(String ocid, LocalDate date) {
-        StringBuilder urlBuilder =
-                new StringBuilder(
-                        API_BASE_URL + CHARACTER_ITEM_EQUIPMENT_OCID + ocid);
+        StringBuilder urlBuilder = new StringBuilder(MapleApiUrl.BASE_URL.getUrl());
+        urlBuilder.append(MapleApiUrl.GET_CHARACTER_ITEM_EQUIPMENT_BY_OCID.getUrl().formatted(ocid));
 
         if (date != null) {
             String formattedDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             urlBuilder.append("&date=").append(formattedDate);
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-nxopen-api-key", apiKey);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response =
-                restTemplate.exchange(urlBuilder.toString(), HttpMethod.GET, entity, String.class);
+        HttpEntity<String> entity = buildHttpEntity();
+        String url = urlBuilder.toString();
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
         return response.getBody();
+    }
+
+    private HttpEntity<String> buildHttpEntity() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(NXOPEN_API_KEY_HEADER, apiKey);
+
+        return new HttpEntity<>(headers);
     }
 }
