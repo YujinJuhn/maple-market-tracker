@@ -1,7 +1,7 @@
 package com.mmt.tracker.market.controller;
 
 import com.mmt.tracker.market.dto.request.PricePostRequest;
-import com.mmt.tracker.market.dto.response.PriceGetResponse;
+import com.mmt.tracker.market.dto.response.DatePriceResponses;
 import com.mmt.tracker.market.dto.response.PricePostResponse;
 import com.mmt.tracker.market.service.PriceService;
 
@@ -23,7 +23,7 @@ public class PriceController {
             summary = "아이템 시세 조회",
             description = "아이템 이름, 스텟 타입, 스타포스 강화 수치, 스텟 퍼센트를 입력하여 해당 아이템의 시세 조회")
     @GetMapping
-    public PriceGetResponse getPrices(
+    public DatePriceResponses getPrices(
             @RequestParam String itemName,
             @RequestParam String statType,
             @RequestParam short starforce,
