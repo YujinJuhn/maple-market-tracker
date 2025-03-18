@@ -2,8 +2,6 @@ package com.mmt.tracker.market.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,15 +23,13 @@ public class Price {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "CHAR(40)")
     @NonNull
-    private ItemName itemName;
+    private String itemName;
 
-    @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "CHAR(10)")
     @NonNull
-    private StatType statType;
+    private String statType;
 
     @Column(columnDefinition = "SMALLINT")
     @NonNull
@@ -54,8 +50,8 @@ public class Price {
             Short statPercent,
             Long amount,
             LocalDate date) {
-        this.itemName = itemName;
-        this.statType = statType;
+        this.itemName = itemName.getValue();
+        this.statType = statType.getValue();
         this.starForce = starForce;
         this.statPercent = statPercent;
         this.amount = amount;

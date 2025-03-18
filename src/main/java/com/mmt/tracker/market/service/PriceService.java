@@ -1,8 +1,6 @@
 package com.mmt.tracker.market.service;
 
-import com.mmt.tracker.market.domain.ItemName;
 import com.mmt.tracker.market.domain.Price;
-import com.mmt.tracker.market.domain.StatType;
 import com.mmt.tracker.market.dto.request.PricePostRequest;
 import com.mmt.tracker.market.dto.response.DatePriceResponse;
 import com.mmt.tracker.market.dto.response.DatePriceResponses;
@@ -26,7 +24,7 @@ public class PriceService {
 
     @Transactional(readOnly = true)
     public DatePriceResponses getPrices(
-            ItemName itemName, StatType statType, Short starForce, Short statPercent) {
+            String itemName, String statType, Short starForce, Short statPercent) {
         List<Price> prices =
                 priceRepository.findPricesByItemNameAndStatTypeAndStarForceAndStatPercent(
                         itemName, statType, starForce, statPercent);
