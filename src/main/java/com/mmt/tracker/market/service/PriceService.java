@@ -1,5 +1,6 @@
 package com.mmt.tracker.market.service;
 
+import com.mmt.tracker.advice.BadRequestException;
 import com.mmt.tracker.market.domain.Price;
 import com.mmt.tracker.market.dto.request.PricePostRequest;
 import com.mmt.tracker.market.dto.response.DatePriceResponse;
@@ -40,6 +41,8 @@ public class PriceService {
 
     @Transactional
     public PricePostResponse postPrice(PricePostRequest request) {
+        validatePriceRequest(request);
+
         Price price =
                 new Price(
                         request.itemName(),
@@ -52,5 +55,17 @@ public class PriceService {
         PricePostResponse response = new PricePostResponse();
         response.setMessage("시세 등록 완료");
         return response;
+    }
+
+    private void validatePriceRequest(PricePostRequest request) {
+        if (request.price() != null && request.price() < 0) {
+            throw new BadRequestException("price는 0 이상이어야 합니다.");
+        }
+        if (request.starForce() < 0 || request.starForce() > 30) {
+            throw new BadRequestException("starForce는 0 이상 30 이하여야 합니다.");
+        }
+        if (request.statPercent() < 0 || request.statPercent() > 39) {
+            throw new BadRequestException("statPercent는 0 이상 39 이하여야 합니다.");
+        }
     }
 }
