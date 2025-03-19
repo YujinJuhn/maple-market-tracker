@@ -1,6 +1,10 @@
 package com.mmt.tracker.maple.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mmt.tracker.advice.BadRequestException;
+import com.mmt.tracker.advice.InternalServerException;
 import com.mmt.tracker.config.MapleApiClientConfiguration;
 
 import lombok.RequiredArgsConstructor;
@@ -11,6 +15,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -21,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 public class MapleApiClient {
 
     private static final String NXOPEN_API_KEY_HEADER = "x-nxopen-api-key";
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${maple.api.key}")
     private String apiKey;
@@ -32,17 +40,7 @@ public class MapleApiClient {
         String url =
                 MapleApiUrl.BASE_URL.getUrl()
                         + MapleApiUrl.GET_CHARACTER_OCID_BY_NAME.getUrl().formatted(characterName);
-
-        HttpEntity<String> entity = buildHttpEntity();
-
-        ResponseEntity<String> response =
-                restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response.getBody();
-        }
-
-        throw new BadRequestException("존재하지 않는 사용자");
+        return executeApiRequest(url);
     }
 
     public String getCharacterEquipment(String ocid, LocalDate date) {
@@ -54,21 +52,77 @@ public class MapleApiClient {
             urlBuilder.append("&date=").append(formattedDate);
         }
 
-        HttpEntity<String> entity = buildHttpEntity();
-        String url = urlBuilder.toString();
-        ResponseEntity<String> response =
-                restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response.getBody();
-        }
-
-        throw new BadRequestException("존재하지 않는 사용자");
+        return executeApiRequest(urlBuilder.toString());
     }
 
     private HttpEntity<String> buildHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.set(NXOPEN_API_KEY_HEADER, apiKey);
         return new HttpEntity<>(headers);
+    }
+
+    private String executeApiRequest(String url) {
+        HttpEntity<String> entity = buildHttpEntity();
+
+        try {
+            ResponseEntity<String> response =
+                    restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return response.getBody();
+            }
+
+            handleErrorResponse(response, url);
+            return null;
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            handleErrorResponse(
+                    ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString()),
+                    url);
+            return null;
+        } catch (ResourceAccessException e) {
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void handleErrorResponse(ResponseEntity<String> response, String url) {
+        int statusCode = response.getStatusCode().value();
+        String errorMessage = "API 요청 실패";
+
+        switch (statusCode) {
+            case 400:
+                try {
+                    JsonNode errorNode = objectMapper.readTree(response.getBody()).get("error");
+                    String errorCode = errorNode.get("name").asText();
+
+                    switch (errorCode) {
+                        case "OPENAPI00003":
+                            throw new BadRequestException("유효하지 않은 OCID");
+                        case "OPENAPI00004":
+                            if (url.contains("item-equipment")) {
+                                throw new BadRequestException("조회 불가능한 날짜");
+                            }
+                            throw new BadRequestException("존재하지 않는 캐릭터명");
+                        default:
+                            throw new BadRequestException("잘못된 요청입니다");
+                    }
+                } catch (BadRequestException e) {
+                    throw e;
+                } catch (JsonProcessingException e) {
+                    throw new InternalServerException("응답을 파싱하는 중 오류 발생");
+                } catch (Exception e) {
+                    throw new InternalServerException("예상하지 못한 오류 발생");
+                }
+
+            case 403:
+                throw new InternalServerException("유효하지 않은 API 키");
+            case 429:
+                throw new InternalServerException("API 호출 한도를 초과");
+            case 500:
+                throw new InternalServerException("메이플스토리 API 서버 오류 발생");
+            default:
+                throw new InternalServerException(errorMessage);
+        }
     }
 }
