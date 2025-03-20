@@ -32,9 +32,8 @@ public class MapleController {
             description = "캐릭터 이름을 입력하여 해당 캐릭터의 장비 정보를 조회합니다. 조회 기준일을 지정할 수 있습니다.")
     @GetMapping("/character/equipment")
     public ResponseEntity<CharacterEquipmentResponse> getCharacterEquipment(
-            @Parameter(description = "캐릭터 이름", example = "캐릭터이름") @RequestParam
-                    String characterName,
-            @Parameter(description = "조회 기준일 (KST, YYYY-MM-DD)", example = "2024-03-07")
+            @Parameter(description = "캐릭터 이름", example = "") @RequestParam String characterName,
+            @Parameter(description = "조회 기준일 (KST, YYYY-MM-DD)", example = "")
                     @RequestParam(required = false)
                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                     LocalDate date)

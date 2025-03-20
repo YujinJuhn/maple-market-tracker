@@ -1,6 +1,7 @@
 package com.mmt.tracker.market.repository;
 
 import com.mmt.tracker.market.domain.Price;
+
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 

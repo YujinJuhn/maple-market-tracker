@@ -1,5 +1,7 @@
 package com.mmt.tracker.market.service;
 
+import com.mmt.tracker.advice.BadRequestException;
+
 import com.mmt.tracker.market.domain.Price;
 import com.mmt.tracker.market.dto.request.PricePostRequest;
 import com.mmt.tracker.market.dto.response.DatePriceResponse;
@@ -11,6 +13,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
+
+
 @Service
 public class PriceService {
 
@@ -20,37 +26,50 @@ public class PriceService {
         this.priceRepository = priceRepository;
     }
 
+    @Transactional(readOnly = true)
     public DatePriceResponses getPrices(
-            String itemName, String statType, short starforce, short statPercent
-    ) {
-        List<Price> prices = priceRepository.findPricesByItemNameAndStatTypeAndStarForceAndStatPercent(
-                itemName,
-                statType,
-                starforce,
-                statPercent
-        );
+            String itemName, String statType, Short starForce, Short statPercent) {
+        List<Price> prices =
+                priceRepository.findPricesByItemNameAndStatTypeAndStarForceAndStatPercent(
+                        itemName, statType, starForce, statPercent);
+
         return convertPriceToResponse(prices);
     }
 
     private DatePriceResponses convertPriceToResponse(List<Price> prices) {
-        return new DatePriceResponses(prices.stream()
-                .map(price -> new DatePriceResponse(price.getDate(), price.getAmount()))
-                .toList());
+        return new DatePriceResponses(
+                prices.stream()
+                        .map(price -> new DatePriceResponse(price.getDate(), price.getAmount()))
+                        .toList());
     }
 
     @Transactional
     public PricePostResponse postPrice(PricePostRequest request) {
-        Price price = new Price(
-                request.itemName(),
-                request.statType(),
-                request.starForce(),
-                request.statPercent(),
-                request.price(),
-                request.date() != null ? request.date() : LocalDateTime.now()
-        );
+        validatePriceRequest(request);
+
+        Price price =
+                new Price(
+                        request.itemName(),
+                        request.statType(),
+                        request.starForce(),
+                        request.statPercent(),
+                        request.price(),
+                        request.date() != null ? request.date() : LocalDate.now());
         priceRepository.save(price);
         PricePostResponse response = new PricePostResponse();
         response.setMessage("시세 등록 완료");
         return response;
+    }
+
+    private void validatePriceRequest(PricePostRequest request) {
+        if (request.price() != null && request.price() < 0) {
+            throw new BadRequestException("price는 0 이상이어야 합니다.");
+        }
+        if (request.starForce() < 0 || request.starForce() > 30) {
+            throw new BadRequestException("starForce는 0 이상 30 이하여야 합니다.");
+        }
+        if (request.statPercent() < 0 || request.statPercent() > 39) {
+            throw new BadRequestException("statPercent는 0 이상 39 이하여야 합니다.");
+        }
     }
 }
