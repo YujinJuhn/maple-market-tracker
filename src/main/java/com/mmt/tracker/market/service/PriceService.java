@@ -1,18 +1,21 @@
 package com.mmt.tracker.market.service;
 
 import com.mmt.tracker.advice.BadRequestException;
+
 import com.mmt.tracker.market.domain.Price;
 import com.mmt.tracker.market.dto.request.PricePostRequest;
 import com.mmt.tracker.market.dto.response.DatePriceResponse;
 import com.mmt.tracker.market.dto.response.DatePriceResponses;
 import com.mmt.tracker.market.dto.response.PricePostResponse;
 import com.mmt.tracker.market.repository.PriceRepository;
-
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+
 
 @Service
 public class PriceService {
@@ -29,6 +32,7 @@ public class PriceService {
         List<Price> prices =
                 priceRepository.findPricesByItemNameAndStatTypeAndStarForceAndStatPercent(
                         itemName, statType, starForce, statPercent);
+
         return convertPriceToResponse(prices);
     }
 
