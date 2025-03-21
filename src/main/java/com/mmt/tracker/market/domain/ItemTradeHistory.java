@@ -26,9 +26,14 @@ public class ItemTradeHistory {
     @Column(nullable = false)
     private LocalDate date;
 
-    public ItemTradeHistory(ItemOption itemOption, Long amount, LocalDate date) {
+    @Column(columnDefinition = "SMALLINT", nullable = false)
+    private Short cuttableCount;
+
+    public ItemTradeHistory(
+            ItemOption itemOption, Long amount, LocalDate date, Short cuttableCount) {
         this.itemOption = itemOption;
         this.amount = amount;
         this.date = date;
+        this.cuttableCount = cuttableCount;
     }
 }
